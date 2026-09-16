@@ -1,0 +1,281 @@
+eSASRec-style component benchmark | 12 combinations | 32 s each | NVIDIA GeForce RTX 4050 Laptop GPU
+Run order: Pre-LN+Full softmax, Pre-LN+gBCE, Post-LN+Sampled softmax, LiGR+BCE, LiGR+gBCE, Pre-LN+Sampled softmax, LiGR+Full softmax, Post-LN+Full softmax, Pre-LN+BCE, Post-LN+BCE, Post-LN+gBCE, LiGR+Sampled softmax
+Data ready in 1.2 s
+Warm-up done in 5.0 s
+
+[ 1/12] Pre-LN + Full softmax   (1,640,256 parameters, budget 32 s)
+   epoch   2 |   4.3 s | loss   7.4165 | val NDCG@10 0.0200  Recall@10 0.0407  *best
+   epoch   4 |   8.5 s | loss   6.9156 | val NDCG@10 0.0495  Recall@10 0.0967  *best
+   epoch   6 |  12.7 s | loss   6.4752 | val NDCG@10 0.0832  Recall@10 0.1583  *best
+   epoch   8 |  17.0 s | loss   6.1393 | val NDCG@10 0.1163  Recall@10 0.2146  *best
+   epoch  10 |  21.2 s | loss   5.9290 | val NDCG@10 0.1362  Recall@10 0.2513  *best
+   epoch  12 |  25.4 s | loss   5.7797 | val NDCG@10 0.1484  Recall@10 0.2742  *best
+   epoch  14 |  29.7 s | loss   5.6753 | val NDCG@10 0.1624  Recall@10 0.2940  *best
+   epoch  16 |  33.9 s | loss   5.5932 | val NDCG@10 0.1654  Recall@10 0.2985  *best
+   TEST  NDCG@10 0.1577  Recall@10 0.2798  Coverage@10 0.5440 | peak VRAM 2,362 MB | 2.12 s/epoch | latency 4.85 ms
+
+[ 2/12] Pre-LN + gBCE   (1,640,256 parameters, budget 32 s)
+   epoch   2 |   3.5 s | loss   6.1175 | val NDCG@10 0.0118  Recall@10 0.0228  *best
+   epoch   4 |   6.9 s | loss   2.8354 | val NDCG@10 0.0176  Recall@10 0.0353  *best
+   epoch   6 |  10.3 s | loss   2.4530 | val NDCG@10 0.0192  Recall@10 0.0396  *best
+   epoch   8 |  13.8 s | loss   2.2987 | val NDCG@10 0.0202  Recall@10 0.0397  *best
+   epoch  10 |  17.2 s | loss   2.2240 | val NDCG@10 0.0193  Recall@10 0.0402
+   epoch  12 |  20.7 s | loss   2.1853 | val NDCG@10 0.0188  Recall@10 0.0391
+   epoch  14 |  24.1 s | loss   2.1616 | val NDCG@10 0.0190  Recall@10 0.0394
+   epoch  16 |  27.5 s | loss   2.1469 | val NDCG@10 0.0189  Recall@10 0.0369
+   epoch  18 |  31.0 s | loss   2.1372 | val NDCG@10 0.0193  Recall@10 0.0394
+   epoch  19 |  32.7 s | loss   2.1342 | val NDCG@10 0.0195  Recall@10 0.0396
+   TEST  NDCG@10 0.0172  Recall@10 0.0336  Coverage@10 0.0513 | peak VRAM 1,241 MB | 1.72 s/epoch | latency 4.79 ms
+
+[ 3/12] Post-LN + Sampled softmax   (1,639,872 parameters, budget 32 s)
+   epoch   2 |   3.4 s | loss   4.8157 | val NDCG@10 0.0180  Recall@10 0.0359  *best
+   epoch   4 |   6.7 s | loss   4.6597 | val NDCG@10 0.0391  Recall@10 0.0747  *best
+   epoch   6 |  10.1 s | loss   3.7880 | val NDCG@10 0.1073  Recall@10 0.1907  *best
+   epoch   8 |  13.5 s | loss   3.3949 | val NDCG@10 0.1347  Recall@10 0.2455  *best
+   epoch  10 |  16.8 s | loss   3.1897 | val NDCG@10 0.1508  Recall@10 0.2745  *best
+   epoch  12 |  20.2 s | loss   3.0696 | val NDCG@10 0.1653  Recall@10 0.2954  *best
+   epoch  14 |  23.6 s | loss   2.9862 | val NDCG@10 0.1735  Recall@10 0.3098  *best
+   epoch  16 |  27.0 s | loss   2.9225 | val NDCG@10 0.1760  Recall@10 0.3121  *best
+   epoch  18 |  30.3 s | loss   2.8743 | val NDCG@10 0.1806  Recall@10 0.3189  *best
+   epoch  19 |  32.0 s | loss   2.8603 | val NDCG@10 0.1831  Recall@10 0.3237  *best
+   TEST  NDCG@10 0.1758  Recall@10 0.2992  Coverage@10 0.6063 | peak VRAM 1,226 MB | 1.69 s/epoch | latency 4.72 ms
+
+[ 4/12] LiGR + BCE   (1,788,480 parameters, budget 32 s)
+   epoch   2 |   3.8 s | loss   1.0182 | val NDCG@10 0.0179  Recall@10 0.0392  *best
+   epoch   4 |   7.6 s | loss   0.9088 | val NDCG@10 0.0311  Recall@10 0.0644  *best
+   epoch   6 |  11.4 s | loss   0.8016 | val NDCG@10 0.0444  Recall@10 0.0899  *best
+   epoch   8 |  15.2 s | loss   0.7346 | val NDCG@10 0.0587  Recall@10 0.1121  *best
+   epoch  10 |  19.0 s | loss   0.6729 | val NDCG@10 0.0695  Recall@10 0.1366  *best
+   epoch  12 |  22.8 s | loss   0.6251 | val NDCG@10 0.0778  Recall@10 0.1525  *best
+   epoch  14 |  26.6 s | loss   0.5855 | val NDCG@10 0.0872  Recall@10 0.1689  *best
+   epoch  16 |  30.4 s | loss   0.5540 | val NDCG@10 0.0999  Recall@10 0.1967  *best
+   epoch  17 |  32.3 s | loss   0.5406 | val NDCG@10 0.1050  Recall@10 0.2003  *best
+   TEST  NDCG@10 0.1039  Recall@10 0.1969  Coverage@10 0.4644 | peak VRAM 1,394 MB | 1.90 s/epoch | latency 6.54 ms
+
+[ 5/12] LiGR + gBCE   (1,788,480 parameters, budget 32 s)
+   epoch   2 |   4.1 s | loss   5.9900 | val NDCG@10 0.0119  Recall@10 0.0224  *best
+   epoch   4 |   8.3 s | loss   2.7838 | val NDCG@10 0.0176  Recall@10 0.0356  *best
+   epoch   6 |  12.4 s | loss   2.4199 | val NDCG@10 0.0188  Recall@10 0.0387  *best
+   epoch   8 |  16.6 s | loss   2.2759 | val NDCG@10 0.0198  Recall@10 0.0387  *best
+   epoch  10 |  20.7 s | loss   2.2073 | val NDCG@10 0.0192  Recall@10 0.0401
+   epoch  12 |  24.8 s | loss   2.1726 | val NDCG@10 0.0191  Recall@10 0.0394
+   epoch  14 |  28.9 s | loss   2.1516 | val NDCG@10 0.0190  Recall@10 0.0394
+   epoch  16 |  33.1 s | loss   2.1389 | val NDCG@10 0.0186  Recall@10 0.0356
+   TEST  NDCG@10 0.0166  Recall@10 0.0316  Coverage@10 0.0518 | peak VRAM 1,470 MB | 2.07 s/epoch | latency 6.00 ms
+
+[ 6/12] Pre-LN + Sampled softmax   (1,640,256 parameters, budget 32 s)
+   epoch   2 |   3.5 s | loss   4.7762 | val NDCG@10 0.0188  Recall@10 0.0379  *best
+   epoch   4 |   6.9 s | loss   4.3461 | val NDCG@10 0.0388  Recall@10 0.0783  *best
+   epoch   6 |  10.4 s | loss   3.9789 | val NDCG@10 0.0659  Recall@10 0.1265  *best
+   epoch   8 |  13.8 s | loss   3.6869 | val NDCG@10 0.0904  Recall@10 0.1738  *best
+   epoch  10 |  17.2 s | loss   3.4550 | val NDCG@10 0.1154  Recall@10 0.2136  *best
+   epoch  12 |  20.7 s | loss   3.3130 | val NDCG@10 0.1290  Recall@10 0.2416  *best
+   epoch  14 |  24.1 s | loss   3.2050 | val NDCG@10 0.1460  Recall@10 0.2707  *best
+   epoch  16 |  27.6 s | loss   3.1166 | val NDCG@10 0.1489  Recall@10 0.2776  *best
+   epoch  18 |  31.0 s | loss   3.0518 | val NDCG@10 0.1586  Recall@10 0.2881  *best
+   epoch  19 |  32.7 s | loss   3.0300 | val NDCG@10 0.1550  Recall@10 0.2858
+   TEST  NDCG@10 0.1488  Recall@10 0.2651  Coverage@10 0.5389 | peak VRAM 1,265 MB | 1.72 s/epoch | latency 4.51 ms
+
+[ 7/12] LiGR + Full softmax   (1,788,480 parameters, budget 32 s)
+   epoch   2 |   5.0 s | loss   7.4179 | val NDCG@10 0.0216  Recall@10 0.0444  *best
+   epoch   4 |   9.9 s | loss   6.8777 | val NDCG@10 0.0553  Recall@10 0.1081  *best
+   epoch   6 |  14.8 s | loss   6.4286 | val NDCG@10 0.0881  Recall@10 0.1656  *best
+   epoch   8 |  19.7 s | loss   6.0821 | val NDCG@10 0.1225  Recall@10 0.2290  *best
+   epoch  10 |  24.7 s | loss   5.8384 | val NDCG@10 0.1482  Recall@10 0.2697  *best
+   epoch  12 |  29.6 s | loss   5.6724 | val NDCG@10 0.1647  Recall@10 0.2955  *best
+   epoch  13 |  32.1 s | loss   5.6105 | val NDCG@10 0.1702  Recall@10 0.3022  *best
+   TEST  NDCG@10 0.1611  Recall@10 0.2813  Coverage@10 0.5356 | peak VRAM 2,590 MB | 2.47 s/epoch | latency 5.84 ms
+
+[ 8/12] Post-LN + Full softmax   (1,639,872 parameters, budget 32 s)
+   epoch   2 |   4.2 s | loss   7.4765 | val NDCG@10 0.0202  Recall@10 0.0409  *best
+   epoch   4 |   8.3 s | loss   7.0829 | val NDCG@10 0.0726  Recall@10 0.1310  *best
+   epoch   6 |  12.5 s | loss   6.1820 | val NDCG@10 0.1265  Recall@10 0.2262  *best
+   epoch   8 |  16.6 s | loss   5.8581 | val NDCG@10 0.1526  Recall@10 0.2724  *best
+   epoch  10 |  20.7 s | loss   5.6734 | val NDCG@10 0.1702  Recall@10 0.2998  *best
+   epoch  12 |  24.9 s | loss   5.5579 | val NDCG@10 0.1809  Recall@10 0.3119  *best
+   epoch  14 |  29.0 s | loss   5.4769 | val NDCG@10 0.1873  Recall@10 0.3224  *best
+   epoch  16 |  33.2 s | loss   5.4217 | val NDCG@10 0.1853  Recall@10 0.3215
+   TEST  NDCG@10 0.1757  Recall@10 0.3005  Coverage@10 0.5772 | peak VRAM 2,324 MB | 2.07 s/epoch | latency 4.60 ms
+
+[ 9/12] Pre-LN + BCE   (1,640,256 parameters, budget 32 s)
+   epoch   2 |   3.1 s | loss   1.0211 | val NDCG@10 0.0172  Recall@10 0.0366  *best
+   epoch   4 |   6.2 s | loss   0.9215 | val NDCG@10 0.0245  Recall@10 0.0492  *best
+   epoch   6 |   9.3 s | loss   0.8167 | val NDCG@10 0.0372  Recall@10 0.0750  *best
+   epoch   8 |  12.4 s | loss   0.7557 | val NDCG@10 0.0482  Recall@10 0.0955  *best
+   epoch  10 |  15.5 s | loss   0.7071 | val NDCG@10 0.0583  Recall@10 0.1174  *best
+   epoch  12 |  18.6 s | loss   0.6529 | val NDCG@10 0.0676  Recall@10 0.1379  *best
+   epoch  14 |  21.7 s | loss   0.6128 | val NDCG@10 0.0784  Recall@10 0.1546  *best
+   epoch  16 |  24.8 s | loss   0.5822 | val NDCG@10 0.0912  Recall@10 0.1733  *best
+   epoch  18 |  27.9 s | loss   0.5573 | val NDCG@10 0.0988  Recall@10 0.1935  *best
+   epoch  20 |  31.0 s | loss   0.5361 | val NDCG@10 0.1079  Recall@10 0.2094  *best
+   epoch  21 |  32.5 s | loss   0.5257 | val NDCG@10 0.1099  Recall@10 0.2132  *best
+   TEST  NDCG@10 0.1099  Recall@10 0.2106  Coverage@10 0.4819 | peak VRAM 1,169 MB | 1.55 s/epoch | latency 4.79 ms
+
+[10/12] Post-LN + BCE   (1,639,872 parameters, budget 32 s)
+   epoch   2 |   3.0 s | loss   1.0297 | val NDCG@10 0.0188  Recall@10 0.0387  *best
+   epoch   4 |   6.1 s | loss   1.0125 | val NDCG@10 0.0190  Recall@10 0.0391  *best
+   epoch   6 |   9.1 s | loss   0.9087 | val NDCG@10 0.0301  Recall@10 0.0627  *best
+   epoch   8 |  12.1 s | loss   0.7478 | val NDCG@10 0.0729  Recall@10 0.1437  *best
+   epoch  10 |  15.1 s | loss   0.6524 | val NDCG@10 0.0953  Recall@10 0.1854  *best
+   epoch  12 |  18.1 s | loss   0.5945 | val NDCG@10 0.1108  Recall@10 0.2083  *best
+   epoch  14 |  21.2 s | loss   0.5531 | val NDCG@10 0.1176  Recall@10 0.2214  *best
+   epoch  16 |  24.2 s | loss   0.5225 | val NDCG@10 0.1220  Recall@10 0.2316  *best
+   epoch  18 |  27.2 s | loss   0.4992 | val NDCG@10 0.1298  Recall@10 0.2440  *best
+   epoch  20 |  30.3 s | loss   0.4809 | val NDCG@10 0.1365  Recall@10 0.2536  *best
+   epoch  22 |  33.2 s | loss   0.4639 | val NDCG@10 0.1357  Recall@10 0.2560
+   TEST  NDCG@10 0.1272  Recall@10 0.2384  Coverage@10 0.5267 | peak VRAM 1,129 MB | 1.51 s/epoch | latency 1.64 ms
+
+[11/12] Post-LN + gBCE   (1,639,872 parameters, budget 32 s)
+   epoch   2 |   3.4 s | loss   5.6846 | val NDCG@10 0.0032  Recall@10 0.0061  *best
+   epoch   4 |   6.7 s | loss   2.7896 | val NDCG@10 0.0187  Recall@10 0.0391  *best
+   epoch   6 |  10.1 s | loss   2.4330 | val NDCG@10 0.0185  Recall@10 0.0386
+   epoch   8 |  13.4 s | loss   2.2875 | val NDCG@10 0.0201  Recall@10 0.0396  *best
+   epoch  10 |  16.7 s | loss   2.2167 | val NDCG@10 0.0192  Recall@10 0.0399
+   epoch  12 |  20.1 s | loss   2.1801 | val NDCG@10 0.0186  Recall@10 0.0382
+   epoch  14 |  23.4 s | loss   2.1576 | val NDCG@10 0.0184  Recall@10 0.0387
+   epoch  16 |  26.8 s | loss   2.1438 | val NDCG@10 0.0185  Recall@10 0.0366
+   epoch  18 |  30.1 s | loss   2.1348 | val NDCG@10 0.0193  Recall@10 0.0389
+   epoch  20 |  33.5 s | loss   2.1287 | val NDCG@10 0.0186  Recall@10 0.0387
+   TEST  NDCG@10 0.0173  Recall@10 0.0341  Coverage@10 0.0526 | peak VRAM 1,202 MB | 1.67 s/epoch | latency 4.70 ms
+
+[12/12] LiGR + Sampled softmax   (1,788,480 parameters, budget 32 s)
+   epoch   2 |   4.2 s | loss   4.7671 | val NDCG@10 0.0181  Recall@10 0.0363  *best
+   epoch   4 |   8.3 s | loss   4.2921 | val NDCG@10 0.0425  Recall@10 0.0859  *best
+   epoch   6 |  12.5 s | loss   3.8865 | val NDCG@10 0.0771  Recall@10 0.1464  *best
+   epoch   8 |  16.6 s | loss   3.5788 | val NDCG@10 0.1044  Recall@10 0.1969  *best
+   epoch  10 |  20.8 s | loss   3.3465 | val NDCG@10 0.1276  Recall@10 0.2379  *best
+   epoch  12 |  24.9 s | loss   3.2000 | val NDCG@10 0.1440  Recall@10 0.2647  *best
+   epoch  14 |  29.0 s | loss   3.0920 | val NDCG@10 0.1570  Recall@10 0.2859  *best
+   epoch  16 |  33.2 s | loss   3.0049 | val NDCG@10 0.1635  Recall@10 0.2935  *best
+   TEST  NDCG@10 0.1494  Recall@10 0.2659  Coverage@10 0.5426 | peak VRAM 1,493 MB | 2.07 s/epoch | latency 6.03 ms
+
+====================================================================================================
+ BENCHMARK SETUP
+====================================================================================================
+ GPU            : NVIDIA GeForce RTX 4050 Laptop GPU  (6,140 MB total)
+ Software       : Python 3.14.3 | PyTorch 2.14.0+cu126 | CUDA 12.6
+ Dataset        : MovieLens-1M | 1,000,209 ratings | 6,040 users | 3,706 items
+ Training data  : 647,619 next-item targets (shifted sequence, history up to 200)
+ Model          : 2 layers | 2 heads | dim 192 | dropout 0.2 | bf16 mixed precision
+ Training       : Adam lr 0.001 | batch 256 users | 32 s budget per combination | seed 42
+ Negatives      : 256 uniform per user sequence | gBCE t=0.75 (beta=0.302)
+ Evaluation     : leave-one-out | full-catalogue ranking | seen items masked | best validation epoch reported on test
+ Memory cap     : 4,096 MB enforced by PyTorch
+
+====================================================================================================
+ 1. ACCURACY - test set, ranked against all items   (* = on accuracy/coverage Pareto frontier)
+====================================================================================================
+#   Layer    Loss             NDCG@10  Recall@10     MRR  Coverage@10  Epochs  Best ep.   
+--  -------  ---------------  -------  ---------  ------  -----------  ------  --------  -
+1   Post-LN  Sampled softmax   0.1758     0.2992  0.1530       0.6063      19        19  *
+2   Post-LN  Full softmax      0.1757     0.3005  0.1523       0.5772      16        14   
+3   LiGR     Full softmax      0.1611     0.2813  0.1386       0.5356      13        13   
+4   Pre-LN   Full softmax      0.1577     0.2798  0.1357       0.5440      16        16   
+5   LiGR     Sampled softmax   0.1494     0.2659  0.1291       0.5426      16        16   
+6   Pre-LN   Sampled softmax   0.1488     0.2651  0.1289       0.5389      19        18   
+7   Post-LN  BCE               0.1272     0.2384  0.1092       0.5267      22        20   
+8   Pre-LN   BCE               0.1099     0.2106  0.0950       0.4819      21        21   
+9   LiGR     BCE               0.1039     0.1969  0.0912       0.4644      17        17   
+10  Post-LN  gBCE              0.0173     0.0341  0.0193       0.0526      20         8   
+11  Pre-LN   gBCE              0.0172     0.0336  0.0193       0.0513      19         8   
+12  LiGR     gBCE              0.0166     0.0316  0.0192       0.0518      16         8   
+
+====================================================================================================
+ 2. COST - memory, time and speed   (* = on accuracy/memory Pareto frontier)
+====================================================================================================
+Layer    Loss                Params  Peak VRAM MB  nvidia-smi MB  Train s  s/epoch  Latency ms  Users/s  GPU temp C  Power W   
+-------  ---------------  ---------  ------------  -------------  -------  -------  ----------  -------  ----------  -------  -
+Post-LN  BCE              1,639,872         1,129          1,813     33.2     1.51        1.64   15,050      70->77       35  *
+Post-LN  gBCE             1,639,872         1,202          2,071     33.5     1.67        4.70   14,975      77->76       31   
+Post-LN  Sampled softmax  1,639,872         1,226          2,105     32.0     1.69        4.72   14,991      76->75       39  *
+Post-LN  Full softmax     1,639,872         2,324          2,779     33.2     2.07        4.60   14,971      80->76       38   
+Pre-LN   BCE              1,640,256         1,169          1,979     32.5     1.55        4.79   14,502      76->72       29   
+Pre-LN   gBCE             1,640,256         1,241          2,105     32.7     1.72        4.79   14,535      69->76       38   
+Pre-LN   Sampled softmax  1,640,256         1,265          2,141     32.7     1.72        4.51   14,481      75->80       39   
+Pre-LN   Full softmax     1,640,256         2,362          2,781     33.9     2.12        4.85   14,523      62->69       26   
+LiGR     BCE              1,788,480         1,394          2,193     32.3     1.90        6.54   11,541      75->76       37   
+LiGR     gBCE             1,788,480         1,470          2,337     33.1     2.07        6.00   11,551      76->75       35   
+LiGR     Sampled softmax  1,788,480         1,493          2,371     33.2     2.07        6.03   11,560      76->71       35   
+LiGR     Full softmax     1,788,480         2,590          3,021     32.1     2.47        5.84   11,549      80->80       79   
+ Peak VRAM = PyTorch's own allocations. nvidia-smi also counts the CUDA context and
+ other processes, so it is always higher.
+
+====================================================================================================
+ 3. SLOT ABLATION - each slot averaged over the other slot
+====================================================================================================
+ By LOSS (mean of the 3 layer designs)
+Loss             NDCG@10  Recall@10  Coverage@10  Peak VRAM MB  s/epoch  Latency ms
+---------------  -------  ---------  -----------  ------------  -------  ----------
+BCE               0.1137     0.2153       0.4910         1,231     1.65        4.32
+gBCE              0.0170     0.0331       0.0519         1,304     1.82        5.17
+Sampled softmax   0.1580     0.2767       0.5626         1,328     1.83        5.09
+Full softmax      0.1648     0.2872       0.5523         2,425     2.22        5.10
+
+ By LAYER DESIGN (mean of the 4 losses)
+Layer    NDCG@10  Recall@10  Coverage@10  Peak VRAM MB  s/epoch  Latency ms
+-------  -------  ---------  -----------  ------------  -------  ----------
+Post-LN   0.1240     0.2180       0.4407         1,470     1.74        3.92
+Pre-LN    0.1084     0.1973       0.4040         1,509     1.78        4.74
+LiGR      0.1077     0.1939       0.3986         1,737     2.13        6.10
+
+====================================================================================================
+ 4. PARETO FRONTIERS - combinations no other combination beats on both measures
+====================================================================================================
+ Accuracy (NDCG@10) vs Coverage@10   - the paper's view
+   - Post-LN + Sampled softmax          NDCG@10 0.1758   coverage 0.6063
+
+ Accuracy (NDCG@10) vs peak GPU memory - ours
+   - Post-LN + Sampled softmax          NDCG@10 0.1758   1,226 MB
+   - Post-LN + BCE                      NDCG@10 0.1272   1,129 MB
+
+ Accuracy (NDCG@10) vs latency       - ours
+   - Post-LN + Sampled softmax          NDCG@10 0.1758   4.72 ms
+   - Post-LN + Full softmax             NDCG@10 0.1757   4.60 ms
+   - Pre-LN + Sampled softmax           NDCG@10 0.1488   4.51 ms
+   - Post-LN + BCE                      NDCG@10 0.1272   1.64 ms
+
+
+====================================================================================================
+ 5. KEY FINDINGS - computed from the numbers above
+====================================================================================================
+ - Most accurate          : Post-LN + Sampled softmax - NDCG@10 0.1758, Recall@10 0.2992
+ - Widest coverage        : Post-LN + Sampled softmax - Coverage@10 0.6063 (the most accurate reaches 0.6063)
+ - Least memory           : Post-LN + BCE - 1,129 MB, 92% of the most accurate's memory, at 72% of its NDCG@10
+ - Fastest single request : Post-LN + BCE - 1.64 ms
+ - Best loss on average   : Full softmax (mean NDCG@10 0.1648)
+ - Best layer on average  : Post-LN (mean NDCG@10 0.1240)
+ - Full vs sampled softmax: full uses 1.8x the memory; sampled reaches 96% of full's NDCG@10
+ - BCE vs sampled softmax : BCE reaches 72% of sampled softmax's NDCG@10 (paper: sampled softmax beats BCE)
+ - LiGR vs Post-LN        : -13.1% mean NDCG@10
+ - Still improving at the end of the budget: 6 of 12 runs (Pre-LN + Full softmax, Post-LN + Sampled softmax, LiGR + BCE, LiGR + Full softmax, Pre-LN + BCE, LiGR + Sampled softmax) - more time would likely raise their scores
+
+====================================================================================================
+ 6. TARGET CHECKS
+====================================================================================================
+ [PASS] Total time 8.2 min (target <= 10 min: data 1 s, warm-up 5 s, runs 479 s, charts 4 s)
+ [PASS] Heaviest run uses 2,590 MB (target 2,048-4,096 MB)
+ [PASS] Every run within the 4,096 MB cap
+ [PASS] All 12 combinations completed
+ [INFO] 9 cheaper runs use under 2 GB by design (natural memory use) - that saving is a result, not a failure
+
+====================================================================================================
+ 7. READ BEFORE QUOTING THESE NUMBERS
+====================================================================================================
+ - One seed per combination: no error bars. Differences of a few thousandths of NDCG may be noise.
+ - Equal time budget, not equal epochs: slower combinations get fewer epochs. That is the
+   intended consumer-hardware question, but it is not the paper's protocol.
+ - LiGR and gBCE are implemented from the papers' descriptions, not from official code.
+ - Not comparable to the eSASRec paper's numbers: different split, model size and training length.
+
+====================================================================================================
+ 8. FILES
+====================================================================================================
+   results\benchmark_results.json
+   results\benchmark_results.csv
+   results\plots\pareto_ndcg_vs_coverage.png
+   results\plots\pareto_ndcg_vs_vram.png
+   results\plots\pareto_ndcg_vs_latency.png
+   results\plots\validation_curves.png
+   results\plots\slot_ablation.png
+   results\plots\cost_memory_and_time.png
+

@@ -1,0 +1,7 @@
+# MovieLens-1M's licence forbids redistributing the data.
+# data.py downloads it automatically on first run, so the repository still works.
+data/
+
+# Python bytecode cache
+__pycache__/
+*.pyc

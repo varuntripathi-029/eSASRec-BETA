@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sequential Recommendation · Beta 0.1</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#f2f2f0; --card:#fcfcfb; --ink:#0b0b0b; --muted:#52514e;
+    --line:#e3e3e0; --accent:#2a78d6; --accent-soft:#e8f0fb;
+    /* chart roles - validated palette (light) */
+    --surface-1:#fcfcfb; --text-primary:#0b0b0b; --text-secondary:#52514e;
+    --series-1:#2a78d6; --series-2:#eb6834; --grid:#e3e3e0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#141413; --card:#1a1a19; --ink:#ffffff; --muted:#c3c2b7;
+      --line:#2e2e2c; --accent:#3987e5; --accent-soft:#1e2a3a;
+      --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7;
+      --series-1:#3987e5; --series-2:#d95926; --grid:#2e2e2c;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#141413; --card:#1a1a19; --ink:#ffffff; --muted:#c3c2b7;
+    --line:#2e2e2c; --accent:#3987e5; --accent-soft:#1e2a3a;
+    --surface-1:#1a1a19; --text-primary:#ffffff; --text-secondary:#c3c2b7;
+    --series-1:#3987e5; --series-2:#d95926; --grid:#2e2e2c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:1060px;margin:0 auto;padding:26px 16px 72px}
+  h1{font-size:21px;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;
+         background:var(--accent-soft);color:var(--accent);font-size:12px;
+         font-weight:600;margin-right:6px}
+  nav{display:flex;gap:4px;margin:20px 0 16px;border-bottom:1px solid var(--line)}
+  nav button{background:none;border:0;border-bottom:2px solid transparent;
+             padding:9px 14px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}
+  nav button[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;
+           color:var(--muted);margin:0 0 12px;font-weight:600}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .tile .v{font-size:23px;font-weight:650;letter-spacing:-.02em;
+           font-variant-numeric:tabular-nums;line-height:1.15}
+  .tile .l{color:var(--muted);font-size:12px;margin-top:3px}
+  input[type=search],input[type=number]{width:100%;padding:9px 11px;
+    border:1px solid var(--line);border-radius:8px;background:var(--bg);
+    color:var(--ink);font:inherit}
+  input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  button.btn{font:inherit;border:1px solid var(--line);background:var(--card);
+         color:var(--ink);border-radius:8px;padding:8px 12px;cursor:pointer}
+  button.btn:hover{border-color:var(--accent);color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  button.primary:hover{opacity:.92;color:#fff}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  ul{list-style:none;margin:0;padding:0}
+  li{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+  li:last-child{border-bottom:0}
+  .title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .num{width:22px;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+  .score{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+  .row{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .empty{color:var(--muted);font-size:13px;padding:10px 0}
+  .scroll{max-height:250px;overflow-y:auto}
+  .rec{background:linear-gradient(90deg,var(--accent-soft),transparent);
+       border-radius:6px;padding-left:8px;margin-left:-8px}
+  .meta{color:var(--muted);font-size:12px;margin-top:10px}
+  .hint{color:var(--muted);font-size:12px;margin-top:6px;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+     color:var(--muted);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  td.n,th.n{text-align:right}
+  .best{font-weight:650;color:var(--accent)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)}
+  .swatch{width:10px;height:10px;border-radius:2px;flex:none}
+  .chartbox{position:relative}
+  .tip{position:absolute;pointer-events:none;background:var(--card);
+       border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12px;
+       box-shadow:0 4px 14px rgba(0,0,0,.14);white-space:nowrap;z-index:5;opacity:0;
+       transition:opacity .08s}
+  .tip b{font-variant-numeric:tabular-nums}
+  .note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.55}
+  .stack{display:flex;flex-direction:column;gap:16px}
+
+  /* test-on-dataset tab */
+  :root{--good-ink:#1c6b45;--good-bg:#e2f3ea;--flat-ink:#4f5664;--flat-bg:#eceef2}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){--good-ink:#7fd6a6;--good-bg:#16301f;--flat-ink:#b3b9c4;--flat-bg:#262a31}
+  }
+  :root[data-theme="dark"]{--good-ink:#7fd6a6;--good-bg:#16301f;--flat-ink:#b3b9c4;--flat-bg:#262a31}
+  select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+         background:var(--bg);color:var(--ink);font:inherit}
+  .pick td,.pick th{padding:6px 8px}
+  .pick tr{cursor:pointer}
+  .pick tr:hover td{background:var(--accent-soft)}
+  .pick input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+  .recent{color:var(--muted);font-size:12px;max-width:420px;overflow:hidden;
+          text-overflow:ellipsis;white-space:nowrap}
+  .status{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .status.hit{background:var(--good-bg);color:var(--good-ink)}
+  .status.miss{background:var(--flat-bg);color:var(--flat-ink)}
+  .result{padding:12px 0;border-bottom:1px solid var(--line);display:grid;
+          grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:start}
+  .result:last-child{border-bottom:0}
+  .result .who{font-weight:600}
+  .result .truth{font-size:13px}
+  .result .toplist{grid-column:2 / 4;display:flex;flex-wrap:wrap;gap:4px}
+  .tag{font-size:11.5px;padding:1px 7px;border-radius:5px;background:var(--bg);
+       border:1px solid var(--line);color:var(--muted);white-space:nowrap;
+       max-width:230px;overflow:hidden;text-overflow:ellipsis}
+  .tag.target{background:var(--good-bg);color:var(--good-ink);border-color:transparent;font-weight:600}
+  .progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:10px}
+  .progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+  @media (prefers-reduced-motion: reduce){.progress i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Sequential Recommendation <span class="badge" style="vertical-align:middle">Beta 0.1</span></h1>
+    <div class="sub" id="info">Loading…</div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" aria-selected="true"  data-tab="rec">Recommend</button>
+    <button role="tab" aria-selected="false" data-tab="met">Metrics</button>
+    <button role="tab" aria-selected="false" data-tab="data">Dataset</button>
+    <button role="tab" aria-selected="false" data-tab="test">Test on dataset</button>
+  </nav>
+
+  <!-- ─────────── RECOMMEND ─────────── -->
+  <section id="tab-rec">
+    <div class="grid">
+      <div class="card">
+        <h2>1 · Build a watch history</h2>
+        <input type="search" id="q" placeholder="Search movies… (e.g. Toy Story)" autocomplete="off">
+        <div class="hint">Click to append. <strong>Order matters</strong> — that is the point of the model.</div>
+        <ul id="results" class="scroll"></ul>
+      </div>
+      <div class="card">
+        <h2>2 · Current history <span id="histCount" class="score"></span></h2>
+        <div class="row">
+          <button class="btn" id="sample">Load sample user</button>
+          <button class="btn" id="clear">Clear</button>
+          <label class="score">Top-K
+            <input type="number" id="k" value="10" min="1" max="50" style="width:64px;display:inline-block">
+          </label>
+        </div>
+        <ul id="history"></ul>
+        <div class="row" style="margin-top:14px">
+          <button class="btn primary" id="go">Predict next item</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>3 · Recommendations</h2>
+      <ul id="recs"></ul>
+      <div class="meta" id="recMeta"></div>
+    </div>
+  </section>
+
+  <!-- ─────────── METRICS ─────────── -->
+  <section id="tab-met" hidden>
+    <div class="tiles" id="metTiles"></div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Test results — full-catalogue ranking</h2>
+      <table id="metTable"></table>
+      <div class="note">
+        Leave-one-out split, seen items masked, ranked against <strong>all</strong> items —
+        not sampled negatives. Krichene &amp; Rendle (KDD 2020) showed sampled metrics do not
+        reliably preserve which model is better. These numbers are therefore <em>not</em>
+        comparable to the SASRec paper's, which rank against 100 random items.
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2>Validation Recall@10 by epoch</h2>
+        <div class="legend" id="leg1"></div>
+        <div class="chartbox" id="chartRecall"></div>
+      </div>
+      <div class="card">
+        <h2>Training loss by epoch</h2>
+        <div class="legend" id="leg2"></div>
+        <div class="chartbox" id="chartLoss"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Cost &amp; latency</h2>
+      <table id="effTable"></table>
+      <div class="note">
+        Measured on this machine, after warm-up — the first CUDA call costs ~150&nbsp;ms of
+        kernel loading and would otherwise be reported as the model's latency.
+        <strong>Latency</strong> is one query on its own: what a waiting user feels.
+        <strong>Throughput</strong> is the amortised cost per user at batch 256: what an
+        offline evaluation sweep costs. They differ by roughly an order of magnitude, and
+        quoting the batched figure as "latency" would overstate responsiveness.
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── DATASET ─────────── -->
+  <section id="tab-data" hidden>
+    <div class="card" style="margin-bottom:16px">
+      <h2>Source</h2>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">MovieLens 1M</div>
+      <div class="note" style="margin-top:0">
+        Released by GroupLens Research, University of Minnesota. 1,000,209 anonymous ratings of
+        ~3,900 movies by 6,040 users who joined MovieLens in 2000.
+      </div>
+      <div class="row" style="margin:12px 0 0">
+        <a class="btn" href="https://grouplens.org/datasets/movielens/1m/" target="_blank" rel="noopener"
+           style="text-decoration:none">Dataset page ↗</a>
+        <a class="btn" href="https://files.grouplens.org/datasets/movielens/ml-1m.zip" target="_blank" rel="noopener"
+           style="text-decoration:none">Download ml-1m.zip (~6 MB) ↗</a>
+        <a class="btn" href="https://files.grouplens.org/datasets/movielens/ml-1m-README.txt" target="_blank" rel="noopener"
+           style="text-decoration:none">README &amp; licence ↗</a>
+      </div>
+      <div class="note">
+        <strong>Cite as:</strong> F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets:
+        History and Context. <em>ACM Transactions on Interactive Intelligent Systems</em> 5(4), Article 19.
+        <a href="https://doi.org/10.1145/2827872" target="_blank" rel="noopener" style="color:var(--accent)">doi:10.1145/2827872</a>.
+        Research use only — the README forbids commercial use without permission.
+      </div>
+    </div>
+    <div class="tiles" id="dataTiles"></div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2>Rating value distribution</h2>
+        <div class="chartbox" id="chartRatings"></div>
+        <div class="note">Ratings skew positive — 4 and 5 stars are over half the data.
+          We use interactions as implicit feedback and ignore the value, which is standard
+          for SASRec-style models.</div>
+      </div>
+      <div class="card">
+        <h2>Interactions per user</h2>
+        <div class="chartbox" id="chartLengths"></div>
+        <div class="note">Every user has at least 20 ratings (MovieLens filters them), but the
+          tail is long — the longest history is over 2,000. The model only sees the most recent
+          <span id="ctxLen">20</span>.</div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="card">
+        <h2>Most-rated titles</h2>
+        <ul id="topItems" class="scroll"></ul>
+      </div>
+      <div class="card">
+        <h2>Browse user sequences</h2>
+        <div class="row">
+          <button class="btn" id="prevU">← Prev</button>
+          <button class="btn" id="nextU">Next →</button>
+          <span class="score" id="uRange"></span>
+        </div>
+        <div class="scroll"><table id="userTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── TEST ON DATASET ─────────── -->
+  <section id="tab-test" hidden>
+    <div class="card">
+      <h2>1 · Pick users from the dataset</h2>
+      <div class="row">
+        <label class="score" for="pickN">How many</label>
+        <select id="pickN">
+          <option>5</option><option selected>10</option><option>25</option><option>50</option><option>100</option>
+        </select>
+        <button class="btn" id="pickBtn">Pick random users</button>
+        <button class="btn" id="selAll">Select all</button>
+        <button class="btn" id="selNone">Select none</button>
+        <label class="score" for="testK">Top-K</label>
+        <input type="number" id="testK" value="10" min="1" max="50" style="width:64px">
+      </div>
+      <div class="hint">
+        Each user is tested exactly as in evaluation: the model sees their whole history
+        <strong>except their last rating</strong>, and must predict that last movie. A
+        <em>hit</em> means the real next movie appears in the top&nbsp;K.
+      </div>
+      <div class="scroll" style="max-height:300px"><table class="pick" id="pickTable"></table></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>2 · Run the model</h2>
+      <div class="row" style="margin-bottom:0">
+        <button class="btn primary" id="runBtn" disabled>Run on 0 selected</button>
+        <button class="btn" id="stopBtn" hidden>Stop</button>
+        <span class="score" id="runStatus"></span>
+      </div>
+      <div class="progress"><i id="bar"></i></div>
+      <div class="tiles" id="testTiles" style="margin-top:14px"></div>
+      <div class="note" id="testNote"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>3 · Per-user results</h2>
+      <div id="testResults"><div class="empty">Pick users and run the model to see results here.</div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ───────────────── charts (no libraries) ───────────────── */
+const SVG = 'http://www.w3.org/2000/svg';
+const el = (n, attrs={}) => {
+  const e = document.createElementNS(SVG, n);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+};
+const fmt = n => n >= 1e6 ? (n/1e6).toFixed(2)+'M'
+               : n >= 1e3 ? (n/1e3).toFixed(1)+'k' : String(n);
+
+function tipFor(box){
+  let t = box.querySelector('.tip');
+  if(!t){ t = document.createElement('div'); t.className = 'tip'; box.appendChild(t); }
+  return t;
+}
+
+/* Line chart. series: [{name, color, points:[{x,y}]}] */
+function lineChart(box, series, opts={}){
+  box.innerHTML = '';
+  const W = 460, H = 210, P = {t:14, r:46, b:28, l:42};
+  const svg = el('svg', {viewBox:`0 0 ${W} ${H}`, width:'100%',
+                         role:'img', 'aria-label':opts.label||'line chart'});
+  const xs = series[0].points.map(p=>p.x);
+  const all = series.flatMap(s=>s.points.map(p=>p.y));
+  let lo = Math.min(...all), hi = Math.max(...all);
+  const pad = (hi-lo)*0.18 || 0.1; lo -= pad; hi += pad;
+  const X = x => P.l + (x - xs[0])/((xs.at(-1)-xs[0])||1) * (W-P.l-P.r);
+  const Y = y => H - P.b - (y-lo)/((hi-lo)||1) * (H-P.t-P.b);
+
+  // recessive grid + y labels
+  for(let i=0;i<=3;i++){
+    const v = lo + (hi-lo)*i/3, y = Y(v);
+    svg.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:y,y2:y,stroke:'var(--grid)','stroke-width':1}));
+    const tx = el('text',{x:P.l-7,y:y+3.5,'text-anchor':'end','font-size':10,fill:'var(--text-secondary)'});
+    tx.textContent = opts.yFmt ? opts.yFmt(v) : v.toFixed(2);
+    svg.appendChild(tx);
+  }
+  // x labels
+  xs.forEach(x=>{
+    const t = el('text',{x:X(x),y:H-9,'text-anchor':'middle','font-size':10,fill:'var(--text-secondary)'});
+    t.textContent = x; svg.appendChild(t);
+  });
+
+  series.forEach(s=>{
+    const d = s.points.map((p,i)=>(i?'L':'M')+X(p.x)+' '+Y(p.y)).join(' ');
+    svg.appendChild(el('path',{d, fill:'none', stroke:s.color, 'stroke-width':2,
+                               'stroke-linecap':'round','stroke-linejoin':'round'}));
+    s.points.forEach(p=>{
+      // 2px surface ring keeps overlapping markers separable
+      svg.appendChild(el('circle',{cx:X(p.x),cy:Y(p.y),r:4.5,fill:s.color,
+                                   stroke:'var(--surface-1)','stroke-width':2}));
+    });
+    // direct label at the line end (identity never by color alone)
+    const last = s.points.at(-1);
+    const lab = el('text',{x:X(last.x)+8, y:Y(last.y)+3.5,'font-size':10.5,
+                           fill:'var(--text-secondary)'});
+    lab.textContent = s.name; svg.appendChild(lab);
+  });
+
+  // hover layer
+  const hoverLine = el('line',{y1:P.t,y2:H-P.b,stroke:'var(--text-secondary)',
+                               'stroke-width':1,'stroke-dasharray':'3 3',opacity:0});
+  svg.appendChild(hoverLine);
+  const hit = el('rect',{x:P.l,y:P.t,width:W-P.l-P.r,height:H-P.t-P.b,fill:'transparent'});
+  svg.appendChild(hit);
+  const tip = tipFor(box);
+  hit.addEventListener('mousemove', ev=>{
+    const r = svg.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width * W;
+    let best = 0, bd = 1e9;
+    xs.forEach((x,i)=>{ const d = Math.abs(X(x)-px); if(d<bd){bd=d;best=i;} });
+    hoverLine.setAttribute('x1', X(xs[best])); hoverLine.setAttribute('x2', X(xs[best]));
+    hoverLine.setAttribute('opacity', 1);
+    tip.innerHTML = `<div style="color:var(--text-secondary)">${opts.xName||'Epoch'} ${xs[best]}</div>` +
+      series.map(s=>`<div><span class="swatch" style="display:inline-block;background:${s.color}"></span> ${s.name} <b>${opts.yFmt?opts.yFmt(s.points[best].y):s.points[best].y.toFixed(4)}</b></div>`).join('');
+    tip.style.opacity = 1;
+    const bx = box.getBoundingClientRect();
+    tip.style.left = Math.min(bx.width-tip.offsetWidth-4, Math.max(0, ev.clientX-bx.left+12))+'px';
+    tip.style.top  = (ev.clientY-bx.top-10)+'px';
+  });
+  hit.addEventListener('mouseleave', ()=>{ tip.style.opacity=0; hoverLine.setAttribute('opacity',0); });
+  box.appendChild(svg);
+}
+
+/* Bar chart, single series (title names it, so no legend). */
+function barChart(box, rows, opts={}){
+  box.innerHTML = '';
+  const W = 460, H = 210, P = {t:16, r:10, b:32, l:46};
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, width:'100%',
+                        role:'img','aria-label':opts.label||'bar chart'});
+  const max = Math.max(...rows.map(r=>r.count));
+  const bw = (W-P.l-P.r)/rows.length;
+  for(let i=0;i<=3;i++){
+    const v = max*i/3, y = H-P.b-(v/max)*(H-P.t-P.b);
+    svg.appendChild(el('line',{x1:P.l,x2:W-P.r,y1:y,y2:y,stroke:'var(--grid)','stroke-width':1}));
+    const t = el('text',{x:P.l-7,y:y+3.5,'text-anchor':'end','font-size':10,fill:'var(--text-secondary)'});
+    t.textContent = fmt(Math.round(v)); svg.appendChild(t);
+  }
+  const tip = tipFor(box);
+  rows.forEach((r,i)=>{
+    const h = (r.count/max)*(H-P.t-P.b);
+    const x = P.l + i*bw + 1;           // 2px surface gap between adjacent bars
+    const w = bw - 2;
+    const bar = el('rect',{x, y:H-P.b-h, width:w, height:Math.max(h,1),
+                           fill:'var(--series-1)', rx:4, ry:4});
+    bar.style.cursor = 'default';
+    bar.addEventListener('mousemove', ev=>{
+      tip.innerHTML = `<div style="color:var(--text-secondary)">${r.label}</div><b>${r.count.toLocaleString()}</b> ${opts.unit||''}`;
+      tip.style.opacity = 1;
+      const bx = box.getBoundingClientRect();
+      tip.style.left = Math.min(bx.width-tip.offsetWidth-4, Math.max(0, ev.clientX-bx.left+12))+'px';
+      tip.style.top  = (ev.clientY-bx.top-10)+'px';
+    });
+    bar.addEventListener('mouseleave', ()=> tip.style.opacity=0);
+    svg.appendChild(bar);
+    const lb = el('text',{x:x+w/2,y:H-11,'text-anchor':'middle','font-size':10,fill:'var(--text-secondary)'});
+    lb.textContent = r.label; svg.appendChild(lb);
+    const vl = el('text',{x:x+w/2,y:H-P.b-h-5,'text-anchor':'middle','font-size':10,
+                          fill:'var(--text-secondary)'});
+    vl.textContent = fmt(r.count); svg.appendChild(vl);
+  });
+  box.appendChild(svg);
+}
+
+/* ───────────────── app ───────────────── */
+const $ = id => document.getElementById(id);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let history = [], userOffset = 0, METRICS = null, DATASET = null;
+
+const escapeHtml = s => s.replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+document.querySelectorAll('nav button').forEach(b=>{
+  b.onclick = () => {
+    document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected', x===b));
+    ['rec','met','data','test'].forEach(t => $('tab-'+t).hidden = (t !== b.dataset.tab));
+    if(b.dataset.tab === 'met' && !METRICS) loadMetrics();
+    if(b.dataset.tab === 'data' && !DATASET) loadDataset();
+    if(b.dataset.tab === 'test' && !PICKED.length) pickUsers();
+  };
+});
+
+async function loadInfo(){
+  const r = await fetch('/api/info').then(r=>r.json());
+  $('info').innerHTML = `<span class="badge">${r.model}</span>` +
+    `<span class="badge">${r.gpu || r.device}</span>` +
+    `${r.num_items.toLocaleString()} items · ${r.num_users.toLocaleString()} users · context window ${r.max_len}`;
+  $('ctxLen').textContent = r.max_len;
+}
+
+/* ---- Recommend ---- */
+async function doSearch(){
+  const r = await fetch('/api/search?q=' + encodeURIComponent($('q').value)).then(r=>r.json());
+  const ul = $('results'); ul.innerHTML = '';
+  if(!r.results.length){ ul.innerHTML = '<li class="empty">No matches.</li>'; return; }
+  for(const item of r.results){
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="title">${escapeHtml(item.title)}</span><span class="score">${item.count}</span>`;
+    li.style.cursor='pointer';
+    li.onclick = () => { history.push(item); renderHistory(); };
+    ul.appendChild(li);
+  }
+}
+function renderHistory(){
+  const ul = $('history'); ul.innerHTML = '';
+  $('histCount').textContent = history.length ? `(${history.length})` : '';
+  if(!history.length){
+    ul.innerHTML = '<li class="empty">Empty — search for a few films, or load a sample user.</li>';
+    $('go').disabled = true; return;
+  }
+  $('go').disabled = false;
+  history.forEach((item,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="num">${i+1}</span><span class="title">${escapeHtml(item.title)}</span>`;
+    const del = document.createElement('button');
+    del.className='btn'; del.textContent='✕'; del.title='Remove';
+    del.onclick = ()=>{ history.splice(i,1); renderHistory(); };
+    li.appendChild(del); ul.appendChild(li);
+  });
+}
+async function recommend(){
+  $('go').disabled = true; $('recMeta').textContent = 'Predicting…';
+  const res = await fetch('/api/recommend',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({history:history.map(h=>h.id), k:Number($('k').value)})}).then(r=>r.json());
+  const ul = $('recs'); ul.innerHTML='';
+  res.recommendations.forEach((item,i)=>{
+    const li = document.createElement('li'); li.className='rec';
+    li.innerHTML = `<span class="num">${i+1}</span><span class="title">${escapeHtml(item.title)}</span><span class="score">${item.score.toFixed(2)}</span>`;
+    ul.appendChild(li);
+  });
+  $('recMeta').textContent = `Inference ${res.inference_ms} ms · ${res.history_used.length} items of context used`;
+  $('go').disabled = false;
+}
+async function loadSample(){
+  const r = await fetch('/api/sample?user=' + Math.floor(Math.random()*6040)).then(r=>r.json());
+  history = r.history; renderHistory();
+}
+
+/* ---- Metrics ---- */
+async function loadMetrics(){
+  const r = await fetch('/api/metrics').then(r=>r.json());
+  METRICS = r.metrics;
+  const names = Object.keys(METRICS);
+  if(!names.length){ $('metTiles').innerHTML = '<div class="empty">No results yet — run train.py.</div>'; return; }
+
+  const best = names.reduce((a,b)=> METRICS[a].test_recall_at_10 >= METRICS[b].test_recall_at_10 ? a : b);
+  const b = METRICS[best];
+  $('metTiles').innerHTML = [
+    ['Recall@10', b.test_recall_at_10.toFixed(4), best],
+    ['NDCG@10', b.test_ndcg_at_10.toFixed(4), best],
+    ['Parameters', b.params.toLocaleString(), best],
+    ['Train time', b.train_seconds.toFixed(0)+' s', best],
+    ['Peak GPU', b.peak_gpu_mb.toFixed(0)+' MB', best],
+    ['Latency', (b.ms_per_query_batch1 ?? b.ms_per_user).toFixed(2)+' ms', 'one query, warm'],
+  ].map(([l,v,s])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}<br><span style="opacity:.75">${s}</span></div></div>`).join('');
+
+  const rows = names.map(n=>({n, ...METRICS[n]}));
+  const bestR = Math.max(...rows.map(r=>r.test_recall_at_10));
+  const bestN = Math.max(...rows.map(r=>r.test_ndcg_at_10));
+  $('metTable').innerHTML =
+    `<tr><th>Model</th><th class="n">Recall@10</th><th class="n">NDCG@10</th><th class="n">Epochs</th></tr>` +
+    rows.map(r=>`<tr><td>${r.n}</td>
+      <td class="n ${r.test_recall_at_10===bestR?'best':''}">${r.test_recall_at_10.toFixed(4)}</td>
+      <td class="n ${r.test_ndcg_at_10===bestN?'best':''}">${r.test_ndcg_at_10.toFixed(4)}</td>
+      <td class="n">${r.history.length}</td></tr>`).join('');
+
+  $('effTable').innerHTML =
+    `<tr><th>Model</th><th class="n">Params</th><th class="n">Train (s)</th><th class="n">Peak GPU (MB)</th>
+     <th class="n">Latency (ms/query)</th><th class="n">Throughput (ms/user)</th></tr>` +
+    rows.map(r=>`<tr><td>${r.n}</td><td class="n">${r.params.toLocaleString()}</td>
+      <td class="n">${r.train_seconds.toFixed(0)}</td><td class="n">${r.peak_gpu_mb.toFixed(0)}</td>
+      <td class="n">${(r.ms_per_query_batch1 ?? r.ms_per_user).toFixed(2)}</td>
+      <td class="n">${(r.ms_per_user_batched ?? r.ms_per_user).toFixed(3)}</td></tr>`).join('');
+
+  const colors = {transformer: css('--series-1'), meanpool: css('--series-2')};
+  const mk = key => names.map(n=>({name:n, color:colors[n]||css('--series-1'),
+      points: METRICS[n].history.map(h=>({x:h.epoch, y:h[key]}))}));
+  const legend = box => box.innerHTML = names.map(n=>
+    `<span><i class="swatch" style="background:${colors[n]||css('--series-1')}"></i>${n}</span>`).join('');
+  legend($('leg1')); legend($('leg2'));
+  lineChart($('chartRecall'), mk('recall'), {yFmt:v=>v.toFixed(3), label:'Validation Recall@10 by epoch'});
+  lineChart($('chartLoss'),   mk('loss'),   {yFmt:v=>v.toFixed(2), label:'Training loss by epoch'});
+}
+
+/* ---- Dataset ---- */
+async function loadDataset(){
+  const d = await fetch('/api/dataset').then(r=>r.json());
+  DATASET = d;
+  const span = (d.first_ts && d.last_ts)
+    ? new Date(d.first_ts*1000).getFullYear()+'–'+new Date(d.last_ts*1000).getFullYear() : '—';
+  $('dataTiles').innerHTML = [
+    ['Ratings (records)', d.n_ratings.toLocaleString()],
+    ['Users', d.n_users.toLocaleString()],
+    ['Items rated', d.n_items.toLocaleString()],
+    ['Matrix density', d.density_pct+' %'],
+    ['Median history', d.seq_len.median+' items'],
+    ['Longest history', d.seq_len.max.toLocaleString()+' items'],
+    ['Time span', span],
+    ['Mean history', d.seq_len.mean+' items'],
+  ].map(([l,v])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+
+  barChart($('chartRatings'), d.rating_dist, {unit:'ratings', label:'Rating value distribution'});
+  barChart($('chartLengths'), d.length_hist, {unit:'users', label:'Interactions per user'});
+
+  $('topItems').innerHTML = d.top_items.slice(0,60).map((it,i)=>
+    `<li><span class="num">${i+1}</span><span class="title">${escapeHtml(it.title)}</span>
+     <span class="score">${it.count.toLocaleString()}</span></li>`).join('');
+  loadUsers(0);
+}
+async function loadUsers(offset){
+  const r = await fetch(`/api/dataset/users?offset=${offset}&limit=25`).then(r=>r.json());
+  userOffset = r.offset;
+  $('uRange').textContent = `users ${r.offset}–${Math.min(r.offset+r.limit,r.total)-1} of ${r.total.toLocaleString()}`;
+  $('userTable').innerHTML =
+    `<tr><th>User</th><th class="n">Len</th><th>First few titles</th></tr>` +
+    r.rows.map(row=>`<tr><td>${row.user}</td><td class="n">${row.length}</td>
+      <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+      ${escapeHtml(row.preview.join(' → '))}</td></tr>`).join('');
+  $('prevU').disabled = r.offset === 0;
+  $('nextU').disabled = r.offset + r.limit >= r.total;
+}
+
+/* ---- Test on dataset ---- */
+let PICKED = [], RUNNING = false, STOP = false;
+
+async function pickUsers(){
+  const n = $('pickN').value;
+  const r = await fetch('/api/random_users?n=' + n).then(r=>r.json());
+  PICKED = r.users.map(u => ({...u, selected:true}));
+  renderPicks();
+}
+function renderPicks(){
+  const t = $('pickTable');
+  if(!PICKED.length){ t.innerHTML = ''; updateRunBtn(); return; }
+  t.innerHTML = `<tr><th style="width:28px"></th><th>User</th><th class="n">History</th><th>Most recent (before the held-out movie)</th></tr>` +
+    PICKED.map((u,i)=>`<tr data-i="${i}">
+      <td><input type="checkbox" id="pk${u.user}" ${u.selected?'checked':''} aria-label="Select user ${u.user}"></td>
+      <td>#${u.user}</td><td class="n">${u.history_len}</td>
+      <td class="recent">${escapeHtml(u.recent.join(' → '))}</td></tr>`).join('');
+  t.querySelectorAll('tr[data-i]').forEach(row=>{
+    row.onclick = ev => {
+      const u = PICKED[+row.dataset.i];
+      u.selected = ev.target.type === 'checkbox' ? ev.target.checked : !u.selected;
+      row.querySelector('input').checked = u.selected;
+      updateRunBtn();
+    };
+  });
+  updateRunBtn();
+}
+function updateRunBtn(){
+  const n = PICKED.filter(u=>u.selected).length;
+  $('runBtn').textContent = `Run on ${n} selected`;
+  $('runBtn').disabled = RUNNING || n === 0;
+}
+
+async function runSelected(){
+  const users = PICKED.filter(u=>u.selected).map(u=>u.user);
+  const k = Math.max(1, Math.min(50, Number($('testK').value) || 10));
+  RUNNING = true; STOP = false; updateRunBtn();
+  $('stopBtn').hidden = false; $('pickBtn').disabled = true;
+  $('testResults').innerHTML = '';
+  const done = [];
+
+  for(let i=0; i<users.length; i++){
+    if(STOP) break;
+    $('runStatus').textContent = `Running user ${i+1} of ${users.length}…`;
+    const r = await fetch('/api/evaluate_user', {method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({user: users[i], k})}).then(r=>r.json());
+    if(r.error){ $('runStatus').textContent = r.error; break; }
+    done.push(r);
+    appendResult(r);
+    renderSummary(done, k, users.length);
+    $('bar').style.width = ((i+1)/users.length*100) + '%';
+  }
+
+  RUNNING = false; $('stopBtn').hidden = true; $('pickBtn').disabled = false; updateRunBtn();
+  $('runStatus').textContent = STOP ? `Stopped after ${done.length} of ${users.length}.`
+                                    : `Finished ${done.length} users.`;
+}
+
+function appendResult(r){
+  const el = document.createElement('div');
+  el.className = 'result';
+  el.innerHTML = `
+    <span class="status ${r.hit?'hit':'miss'}">${r.hit?'✓ Hit':'✗ Miss'}</span>
+    <div>
+      <div class="who">User #${r.user} <span class="score">· ${r.history_len} ratings</span></div>
+      <div class="truth">Actual next movie: <strong>${escapeHtml(r.target.title)}</strong>
+        <span class="score">— ranked ${r.rank.toLocaleString()} of ${(STATE_ITEMS||0).toLocaleString()}</span></div>
+    </div>
+    <span class="score">${r.inference_ms} ms</span>
+    <div class="toplist">${r.top.map((t,j)=>
+      `<span class="tag ${t.is_target?'target':''}" title="${escapeHtml(t.title)}">${j+1}. ${escapeHtml(t.title)}</span>`).join('')}</div>`;
+  $('testResults').appendChild(el);
+}
+
+function renderSummary(done, k, total){
+  const hits = done.filter(r=>r.hit).length;
+  const ranks = done.map(r=>r.rank).sort((a,b)=>a-b);
+  const median = ranks[Math.floor((ranks.length-1)/2)];
+  const mrr = done.reduce((s,r)=>s + 1/r.rank, 0) / done.length;
+  const lat = done.reduce((s,r)=>s + r.inference_ms, 0) / done.length;
+  $('testTiles').innerHTML = [
+    [`${hits} / ${done.length}`, `Hits@${k}`],
+    [(hits/done.length).toFixed(3), `Hit rate@${k}`],
+    [median.toLocaleString(), 'Median rank of true movie'],
+    [mrr.toFixed(3), 'MRR'],
+    [lat.toFixed(2)+' ms', 'Mean latency per user'],
+  ].map(([v,l])=>`<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  $('testNote').innerHTML = done.length < 50
+    ? `On a sample this small the hit rate swings a lot from pick to pick. For reference, Recall@10 over all 6,040 users is <strong>${TEST_RECALL ?? '—'}</strong>.`
+    : `For reference, Recall@10 over all 6,040 users is <strong>${TEST_RECALL ?? '—'}</strong>.`;
+}
+
+let STATE_ITEMS = 0, TEST_RECALL = null;
+fetch('/api/info').then(r=>r.json()).then(r=>{ STATE_ITEMS = r.num_items; });
+fetch('/api/metrics').then(r=>r.json()).then(r=>{
+  const t = r.metrics.transformer; if(t) TEST_RECALL = t.test_recall_at_10.toFixed(4);
+});
+
+$('pickBtn').onclick = pickUsers;
+$('selAll').onclick = ()=>{ PICKED.forEach(u=>u.selected=true); renderPicks(); };
+$('selNone').onclick = ()=>{ PICKED.forEach(u=>u.selected=false); renderPicks(); };
+$('runBtn').onclick = runSelected;
+$('stopBtn').onclick = ()=>{ STOP = true; };
+
+let timer;
+$('q').addEventListener('input', ()=>{ clearTimeout(timer); timer = setTimeout(doSearch,180); });
+$('go').onclick = recommend;
+$('clear').onclick = ()=>{ history=[]; renderHistory(); $('recs').innerHTML=''; $('recMeta').textContent=''; };
+$('sample').onclick = loadSample;
+$('prevU').onclick = ()=> loadUsers(Math.max(0, userOffset-25));
+$('nextU').onclick = ()=> loadUsers(userOffset+25);
+
+loadInfo(); doSearch(); renderHistory();
+</script>
+</body>
+</html>
